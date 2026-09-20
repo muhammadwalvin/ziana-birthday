@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Happy Birthday Ziana 🌸</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,500&family=Caveat:wght@500;700&family=Nunito+Sans:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="petals"></div>
+
+<div id="opening">
+  <div id="burst"></div>
+
+  <div class="op-stage active" id="stage-start">
+    <button id="start-btn" class="btn-open">🎁 Buka Kejutannya</button>
+  </div>
+
+  <div class="op-stage" id="stage-count">
+    <div id="count-num">3</div>
+  </div>
+  <div class="op-stage" id="stage-greet">
+    <div id="greet">
+      <h1 id="hb-text" class="big-slomo">Haaapppyyyyy Biirrtthhddaaaayyyyy</h1>
+      <span id="hb-sub" class="greet-sub big-slomo-sub">Sayangg akuhh, Cantikk nyaa akuhh, Babbyyy nyaa akuhh</span>
+    </div>
+  </div>
+  <div class="op-stage" id="stage-menu">
+    <div id="greet" style="margin-bottom:4px;">
+      <span class="greet-sub">pilih mau lihat yang mana dulu</span>
+    </div>
+    <div class="menu-buttons" id="menu">
+      <a href="cerita.html">📖 Cerita Kita</a>
+      <a href="galeri.html">🖼️ Galeri Kenangan</a>
+      <a href="ucapan.html">💌 Ucapan & Surat</a>
+    </div>
+  </div>
+
+  <!-- Taruh file musik happy birthday kamu satu folder, kasih nama happy-birthday.mp3 -->
+  <audio id="bgm" src="happy-birthday.mp3" loop></audio>
+</div>
+
+<script src="petals.js"></script>
+<script>
+  var stageStart = document.getElementById('stage-start');
+  var countEl = document.getElementById('count-num');
+  var stageCount = document.getElementById('stage-count');
+  var stageGreet = document.getElementById('stage-greet');
+  var stageMenu = document.getElementById('stage-menu');
+  var bgm = document.getElementById('bgm');
+
+  var burstContainer = document.getElementById('burst');
+  var burstEmojis = ['💕','💖','❤️','💗','🌸','🌷','💮','🌺'];
+  var burstTimer = null;
+
+  function spawnBurstWave(){
+    var count = window.innerWidth < 600 ? 10 : 16;
+    for(var i=0;i<count;i++){
+      var el = document.createElement('div');
+      el.className = 'burst-item';
+      el.textContent = burstEmojis[Math.floor(Math.random()*burstEmojis.length)];
+      el.style.left = Math.random()*100 + 'vw';
+      el.style.fontSize = (16 + Math.random()*18) + 'px';
+      el.style.animationDuration = (2.2 + Math.random()*1.8) + 's';
+      el.style.animationDelay = (Math.random()*0.6) + 's';
+      burstContainer.appendChild(el);
+      (function(node){
+        setTimeout(function(){ node.remove(); }, 4500);
+      })(el);
+    }
+  }
+  function startBurst(){ spawnBurstWave(); burstTimer = setInterval(spawnBurstWave, 500); }
+  function stopBurst(){ if(burstTimer){ clearInterval(burstTimer); burstTimer = null; } }
+
+  // pecah teks jadi per-huruf, tiap huruf punya delay makin lama -> efek muncul pelan "berjalan"
+  // PERLAMBAT/PERCEPAT: ubah angka 0.12 di bawah ini (jarak antar huruf)
+  function makeSlomo(el, baseDelay){
+    var text = el.textContent;
+    el.textContent = '';
+    text.split('').forEach(function(ch, idx){
+      var span = document.createElement('span');
+      span.textContent = ch === ' ' ? '\u00A0' : ch;
+      span.style.display = 'inline-block';
+      span.style.opacity = '0';
+      span.style.animation = 'slomoIn 1s ease-out forwards';
+      span.style.animationDelay = (baseDelay + idx * 0.12) + 's';
+      el.appendChild(span);
+    });
+  }
+  makeSlomo(document.getElementById('hb-text'), 0);
+  makeSlomo(document.getElementById('hb-sub'), 5); // subjudul baru mulai setelah judul selesai
+
+  var seq = [3,2,1];
+  var i = 0;
+  function tick(){
+    if(i < seq.length){
+      countEl.textContent = seq[i];
+      countEl.style.animation = 'none';
+      void countEl.offsetWidth;
+      countEl.style.animation = 'pop .8s ease';
+      i++;
+      setTimeout(tick, 800);
+    } else {
+      stageCount.classList.remove('active');
+      stageGreet.classList.add('active');
+      startBurst();
+      setTimeout(function(){
+        stageGreet.classList.remove('active');
+        stageMenu.classList.add('active');
+        stopBurst();
+      }, 14000); // total durasi tampilan ucapan happy birthday (disesuaikan dengan panjang teks)
+    }
+  }
+
+  // tombol start: izinkan musik autoplay (browser wajib ada klik dulu) + mulai hitungan
+  document.getElementById('start-btn').addEventListener('click', function(){
+    bgm.play().catch(function(){ /* kalau file musik belum ada, biarkan senyap */ });
+    stageStart.classList.remove('active');
+    stageCount.classList.add('active');
+    tick();
+  });
+</script>
+
+</body>
+</html>
